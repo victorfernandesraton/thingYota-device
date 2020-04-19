@@ -4,7 +4,8 @@
 #include <ESP8266WiFiMulti.h>
 #include <SocketIoClient.h>
 #include "HttpRequest.hpp"
-#define Serial Serial
+#include <vector>
+
 
 ESP8266WiFiMulti WiFiMulti;
 SocketIoClient webSocket;
@@ -15,6 +16,7 @@ void event(const char *payload, size_t length)
 {
     Serial.printf("got message: %s\n", payload);
 }
+
 void teste(const char *payload, size_t length)
 {
     Serial.println("Teste %s");
@@ -36,6 +38,7 @@ void setup()
     Serial.println();
 
     WiFi.begin("Maria Clara", "11010000");
+    WiFiMulti.addAP("Maria Clara", "11010000");
     for (uint8_t t = 4; t > 0; t--)
     {
         Serial.printf("[SETUP] BOOT WAIT %d...\n", t);
@@ -44,7 +47,6 @@ void setup()
         delay(1000);
     }
 
-    WiFiMulti.addAP("Maria Clara", "11010000");
 
     while (WiFiMulti.run() != WL_CONNECTED)
     {
@@ -54,8 +56,7 @@ void setup()
     webSocket.on("event", event);
     webSocket.on("teste", teste);
     webSocket.on("connect", connectHandler);
-
-    webSocket.begin("123.23.23.20", 4000);
+    webSocket.begin("123.23.23.20/arduino", 8000);
     // use HTTP Basic Authorization this is optional remove if not needed
     // webSocket.setAuthorization("username", "password");
 }
@@ -63,12 +64,22 @@ void setup()
 void loop()
 {
     HttpRequest *custonHttp = new HttpRequest("http://123.23.23.20", 8000, "/helth");
-    Serial.println(custonHttp->get("/ok").response); 
-    Serial.println(custonHttp->get("/ok").responseCode); 
-    Serial.println(custonHttp->get("/ok").responseError); 
-    // webSocket.loop();
-    // if (connect)
-    // {
-    //     Serial.println("Conectado");
-    // }
+    custonHttp->updateHeader("Content-Type", "application/json");
+    HttpResponse resp; 
+    if (!connect) {
+        resp = custonHttp->get("/ok");
+        Serial.println(resp.response); 
+        Serial.println(resp.responseCode); 
+        Serial.println(resp.responseError); 
+    }
+    if (resp.responseCode == 200) {
+        connect = true;
+        Serial.println(resp.responseCode == 200);
+        Serial.println("Conectado");
+    }
+    webSocket.loop();
+    if (connect) 
+    {
+        Serial.println("Conectado");
+    }
 }

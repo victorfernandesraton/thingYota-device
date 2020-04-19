@@ -3,18 +3,19 @@
 #include "HttpResponse.h"
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
+#include <vector>
+#include <map>
 
-using namespace std;
 
 HttpRequest::HttpRequest(String host, u16_t port, String uri)
 {
     _baseUrl = uri;
     _host = host;
     _port = port;
-    _headers = "";
+    _headers.insert(std::make_pair("Content-Type", "plain/text"));
 }
 
-HttpRequest::HttpRequest(String host, u16_t port, String uri, String headers)
+HttpRequest::HttpRequest(String host, u16_t port, String uri, std::map <String, String> headers)
 {
     _baseUrl = uri;
     _host = host;
@@ -28,6 +29,10 @@ HttpResponse HttpRequest::get(String url)
     HttpResponse httpResult;
     Serial.println("REQUEST :[GET] ::" +_host+_port+_baseUrl+url);
     http.begin(_host+":"+_port+_baseUrl+url);
+    if (_headers.size() > 0) {
+        for (auto it = _headers.begin(); it != _headers.end(); it++) 
+                http.addHeader(it->first, it->second);
+    }
     if (http.GET() > 0)
     {
         
@@ -54,7 +59,7 @@ HttpResponse HttpRequest::get(String url, String query)
     http.begin(_host+":"+_port+_baseUrl+url+query);
     if (http.GET() > 0)
     {
-        
+
         httpResult.responseCode = http.GET();
         httpResult.response = http.getString();
         httpResult.responseError = "";
@@ -223,4 +228,12 @@ HttpResponse HttpRequest::del(String url, String query, String parans)
     httpResult.responseCode = 400;
     httpResult.responseError = "";
     return httpResult;
+}
+
+void HttpRequest::updateHeader(String key, String value) {
+    if(_headers.find(key) != _headers.end()) {
+        _headers[key] = value;
+    } else {
+        _headers.insert(std::make_pair(key, value));
+    }
 }

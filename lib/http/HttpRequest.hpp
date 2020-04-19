@@ -1,12 +1,21 @@
 
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
+#include <map>
 #ifndef HTTPREQUEST_H
 #define HTTPREQUEST_H
 
 #include "HttpResponse.h"
 
 using namespace std;
+
+struct HttpHeaders 
+{
+    String key;
+    String value;
+};
+
+typedef HttpHeaders HttpHeaders;
 
 struct HttpResponse
 {
@@ -22,13 +31,13 @@ class HttpRequest
 {
 private:
     String _baseUrl;
-    String _headers;
+    std::map <String, String> _headers;
     String _host;
     u16_t _port;
 
 public:
     HttpRequest(String host, uint16_t port, String uri);
-    HttpRequest(String host, uint16_t port, String uri, String headers);
+    HttpRequest(String host, uint16_t port, String uri, std::map<String, String> headers);
 
     // Métodos get
     HttpResponse get(String url);
@@ -53,7 +62,7 @@ public:
     HttpResponse del(String url, String query, String parans);
 
     //  mudança do header
-    void updateHeader(String header);
+    void updateHeader(String  key, String value);
 };
 // }
 
