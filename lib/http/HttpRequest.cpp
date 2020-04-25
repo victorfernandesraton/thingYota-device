@@ -5,7 +5,7 @@
 #include <WiFiClient.h>
 #include <vector>
 #include <map>
-
+#include <ArduinoJson.h>
 
 HttpRequest::HttpRequest(String host, u16_t port, String uri)
 {
@@ -15,7 +15,7 @@ HttpRequest::HttpRequest(String host, u16_t port, String uri)
     _headers.insert(std::make_pair("Content-Type", "plain/text"));
 }
 
-HttpRequest::HttpRequest(String host, u16_t port, String uri, std::map <String, String> headers)
+HttpRequest::HttpRequest(String host, u16_t port, String uri, std::map<String, String> headers)
 {
     _baseUrl = uri;
     _host = host;
@@ -27,15 +27,16 @@ HttpResponse HttpRequest::get(String url)
 {
     HTTPClient http;
     HttpResponse httpResult;
-    Serial.println("REQUEST :[GET] ::" +_host+_port+_baseUrl+url);
-    http.begin(_host+":"+_port+_baseUrl+url);
-    if (_headers.size() > 0) {
-        for (auto it = _headers.begin(); it != _headers.end(); it++) 
-                http.addHeader(it->first, it->second);
+    Serial.println("REQUEST :[GET] ::" + _host + _port + _baseUrl + url);
+    http.begin(_host + ":" + _port + _baseUrl + url);
+    if (_headers.size() > 0)
+    {
+        for (auto it = _headers.begin(); it != _headers.end(); it++)
+            http.addHeader(it->first, it->second);
     }
     if (http.GET() > 0)
     {
-        
+
         httpResult.responseCode = http.GET();
         httpResult.response = http.getString();
         httpResult.responseError = "";
@@ -52,11 +53,11 @@ HttpResponse HttpRequest::get(String url)
 
 HttpResponse HttpRequest::get(String url, String query)
 {
-   
+
     HTTPClient http;
     HttpResponse httpResult;
-    Serial.println("REQUEST :[GET] ::" +_host+_port+_baseUrl+url+query);
-    http.begin(_host+":"+_port+_baseUrl+url+query);
+    Serial.println("REQUEST :[GET] ::" + _host + _port + _baseUrl + url + query);
+    http.begin(_host + ":" + _port + _baseUrl + url + query);
     if (http.GET() > 0)
     {
 
@@ -78,27 +79,22 @@ HttpResponse HttpRequest::get(String url, String query, String parans)
 {
     HTTPClient http;
     HttpResponse httpResult;
-    if (http.begin(_host, _port, _baseUrl + query + parans))
+    Serial.println("REQUEST :[GET] ::" + _host + _port + _baseUrl + url + query + parans);
+    http.begin(_host + ":" + _port + _baseUrl + url + query + "?" + parans);
+
+    if (http.GET())
     {
-        if (http.GET())
-        {
-            httpResult.responseCode = http.GET();
-            httpResult.response = http.getString();
-            httpResult.responseError = "";
-        }
-        else
-        {
-            httpResult.response = "Error: Server internal Errror";
-            httpResult.responseCode = 500;
-            httpResult.responseError = http.errorToString(httpResult.responseCode).c_str();
-        }
+        httpResult.responseCode = http.GET();
+        httpResult.response = http.getString();
+        httpResult.responseError = "";
     }
     else
     {
-        httpResult.response = "Error: Not Found";
-        httpResult.responseCode = 400;
-        httpResult.responseError = "";
+        httpResult.response = "Error: Server internal Errror";
+        httpResult.responseCode = 500;
+        httpResult.responseError = http.errorToString(httpResult.responseCode).c_str();
     }
+
     http.end();
     return httpResult;
 }
@@ -139,13 +135,26 @@ HttpResponse HttpRequest::post(String url, String query, String parans)
 }
 HttpResponse HttpRequest::post(String url, String query, String parans, String body)
 {
+
     HTTPClient http;
     HttpResponse httpResult;
+    Serial.println("REQUEST :[GET] ::" + _host + _port + _baseUrl + url + query + parans);
+    http.begin(_host + ":" + _port + _baseUrl + url + query + "?" + parans);
 
-    Serial.println("Not Implemented");
-    httpResult.response = "Error: Not Found";
-    httpResult.responseCode = 400;
-    httpResult.responseError = "";
+    if (http.POST(body))
+    {
+        httpResult.responseCode = http.POST(body);
+        httpResult.response = http.getString();
+        httpResult.responseError = "";
+    }
+    else
+    {
+        httpResult.response = "Error: Server internal Errror";
+        httpResult.responseCode = 500;
+        httpResult.responseError = http.errorToString(httpResult.responseCode).c_str();
+    }
+
+    http.end();
     return httpResult;
 }
 
@@ -230,10 +239,14 @@ HttpResponse HttpRequest::del(String url, String query, String parans)
     return httpResult;
 }
 
-void HttpRequest::updateHeader(String key, String value) {
-    if(_headers.find(key) != _headers.end()) {
+void HttpRequest::updateHeader(String key, String value)
+{
+    if (_headers.find(key) != _headers.end())
+    {
         _headers[key] = value;
-    } else {
+    }
+    else
+    {
         _headers.insert(std::make_pair(key, value));
     }
 }

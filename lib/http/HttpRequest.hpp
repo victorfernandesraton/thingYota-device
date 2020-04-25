@@ -2,6 +2,7 @@
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
 #include <map>
+#include <ArduinoJson.h>
 #ifndef HTTPREQUEST_H
 #define HTTPREQUEST_H
 
