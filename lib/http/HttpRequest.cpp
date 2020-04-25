@@ -141,9 +141,8 @@ HttpResponse HttpRequest::post(String url, String query, String parans, String b
     Serial.println("REQUEST :[GET] ::" + _host + _port + _baseUrl + url + query + parans);
     http.begin(_host + ":" + _port + _baseUrl + url + query + "?" + parans);
 
-    if (http.POST(body))
-    {
-        httpResult.responseCode = http.POST(body);
+    httpResult.responseCode = http.POST(body);
+    if (httpResult.responseCode > 0) {
         httpResult.response = http.getString();
         httpResult.responseError = "";
     }

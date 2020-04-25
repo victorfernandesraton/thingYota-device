@@ -5,10 +5,16 @@
 #include <SocketIoClient.h>
 #include "HttpRequest.hpp"
 #include <vector>
+#include <ArduinoJson.h>
+
 
 
 ESP8266WiFiMulti WiFiMulti;
 SocketIoClient webSocket;
+StaticJsonDocument<200> doc;
+
+const String apiDomain = "http://123.23.23.20";
+// const String macAddres = WiFi.macAddress;
 // bool connect = false;
 
 // eventos
@@ -25,7 +31,6 @@ void teste(const char *payload, size_t length)
     webSocket.emit("ok", "ok");
 }
 
-const String apiDomain = "http://123.23.23.20";
 
 // void connectHandler(const char *payload, size_t length)
 // {
@@ -45,7 +50,7 @@ void setup()
     {
         Serial.printf("[SETUP] BOOT WAIT %d...\n", t);
         Serial.flush();
-        // Serial.println(WiupdateHeaderFi.macAddress);
+
         delay(1000);
     }
 
@@ -68,21 +73,27 @@ void loop()
     bool connect = false;
     
     HttpRequest *custonHttp = new HttpRequest(apiDomain, 8000, "/helth");
-    custonHttp->updateHeader("Content-Type", "application/json");
+    custonHttp->updateHeader("Content-Type", "application/json");  
+    
+    
+
+
     HttpRequest *postHttp = new HttpRequest(apiDomain, 8000, "/auth");
     postHttp->updateHeader("Content-Type", "application/json");
-    
     HttpResponse resp; 
     HttpResponse respost;
     // resp = custonHttp->get("");
     respost = postHttp->post("/guest", "", "", "{\"api_key\":\"tPmAT5Ab3j7F9\"");
+    deserializeJson(doc, respost.response);
     // Serial.println(resp.response); 
     // Serial.println(resp.responseCode); 
     // Serial.println(resp.responseError); 
     
-    Serial.println(respost.response); 
+    Serial.println(respost.response);
     Serial.println(respost.responseCode); 
     Serial.println(respost.responseError); 
+    const String data_token = doc["data"]["token"]; // "ok"
+    Serial.println(data_token);
 
     // webSocket.loop();
     // if (connect) 
