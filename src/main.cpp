@@ -6,7 +6,7 @@
 #include "HttpRequest.hpp"
 #include <vector>
 #include <ArduinoJson.h>
-
+#include "httpHandles/auth.hpp"
 
 
 ESP8266WiFiMulti WiFiMulti;
@@ -69,15 +69,15 @@ void setup()
 }
 
 void loop()
-{
-    bool connect = false;
-    
+{    
     HttpRequest *custonHttp = new HttpRequest(apiDomain, 8000, "/helth");
     custonHttp->updateHeader("Content-Type", "application/json");  
-    
-    
-
-
+    String token;
+    DynamicJsonDocument resAuth =auth::login("mac-mac-mac");
+    if (resAuth["res"]) {
+        String res = resAuth["data"]["token"];
+        Serial.println(res);
+    }
     HttpRequest *postHttp = new HttpRequest(apiDomain, 8000, "/auth");
     postHttp->updateHeader("Content-Type", "application/json");
     HttpResponse resp; 
