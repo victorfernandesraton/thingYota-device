@@ -6,9 +6,13 @@
 #include <vector>
 #include <map>
 #include <ArduinoJson.h>
+#include "../port/port.hpp"
 
+DynamicJsonDocument logonResponseSerialize(String jsonfly);
+DynamicJsonDocument registerResponseSerialize(String jsonfly);
 namespace auth
 {
-    DynamicJsonDocument logonResponseSerialize(String jsonfly);
+
     DynamicJsonDocument login(String mac_addres);
+    DynamicJsonDocument registaer(String mac_address, std::map<String, Port>);
 } // authspace auth
