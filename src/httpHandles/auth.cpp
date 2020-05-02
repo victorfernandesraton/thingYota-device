@@ -26,6 +26,16 @@ DynamicJsonDocument registerResponseSerialize(String jsonfly)
     doc["res"] = true;
     return doc;
 }
+DynamicJsonDocument guestResponseSerialize(String jsonfly)
+{
+    DynamicJsonDocument doc(capacity);
+    // Tratamento de json
+    deserializeJson(doc, jsonfly);
+    doc["res"] = true;
+    return doc;
+}
+
+
 namespace auth
 {
 DynamicJsonDocument login(String mac_addres)
@@ -47,12 +57,39 @@ DynamicJsonDocument login(String mac_addres)
         return doc;
     }
 }
-DynamicJsonDocument registaer(String mac_address, std::map<String, Port>) {
+DynamicJsonDocument registaer(String mac_address, String token, std::map<String, Port> port)
+{
+
     const size_t capacity = JSON_OBJECT_SIZE(1);
     DynamicJsonDocument doc(capacity);
 
     doc["res"] = false;
 
-    return doc;    
+    HttpRequest *request = new HttpRequest(apiDomain, 8000, "/singup");
+    request->updateHeader("Content-Type", "application/json");
+    request->updateHeader("Authorization", "Bearer "+token);
+    String object = "{\"name\":\"esp-teste\",\"mac_addres\":\""+mac_address+"\",\"type\":\"esp-8266\"}";
+    HttpResponse response = request->post("/device", "", "",object);
+    Serial.println(response.response);
+    if(response.responseCode == 200) {
+        return registerResponseSerialize(response.response);
+    } else {
+        return doc;
+    }
+}
+DynamicJsonDocument guestToken() {
+    const size_t capacity = JSON_OBJECT_SIZE(1);
+    DynamicJsonDocument doc(capacity);
+    doc["res"] = false;
+
+    HttpRequest *request = new HttpRequest(apiDomain, 8000, "/auth");
+    request->updateHeader("Content-Type", "application/json");
+    HttpResponse response = request->post("/guest", "", "","" );
+    Serial.println(response.response);
+    if(response.responseCode == 200) {
+        return guestResponseSerialize(response.response);
+    } else {
+        return doc;
+    }    
 }
 } // namespace auth

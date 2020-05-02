@@ -70,34 +70,42 @@ void setup()
 
 void loop()
 {    
-    HttpRequest *custonHttp = new HttpRequest(apiDomain, 8000, "/helth");
-    custonHttp->updateHeader("Content-Type", "application/json");  
-    String token;
-    DynamicJsonDocument resAuth =auth::login("mac-mac-mac");
-    if (resAuth["res"]) {
+    bool connect = false;
+    bool socketConnect = false;
+    // String token;
+    Port p1;
+    p1.PID = 12;
+    p1.type = "Teste";
+    p1.value = 0;
+
+    std::map<String, Port> ports;
+    ports.insert(std::make_pair("12", p1));
+    
+    DynamicJsonDocument guestAuthResponse = auth::guestToken();
+    
+    String guestToken = guestAuthResponse["data"]["token"];
+    Serial.println("Token");
+    Serial.println(guestToken);
+    // if(guestAuthResponse["res"]) {
+    // }
+    DynamicJsonDocument resAuth =auth::login(WiFi.macAddress());
+    
+    bool isAuth = resAuth["res"];
+    Serial.println(isAuth);
+    if (!resAuth["res"]) {
+        DynamicJsonDocument registerResponse = auth::registaer(WiFi.macAddress(), guestToken, ports);
+    } else if (resAuth["res"]) {
         String res = resAuth["data"]["token"];
         Serial.println(res);
     }
-    HttpRequest *postHttp = new HttpRequest(apiDomain, 8000, "/auth");
-    postHttp->updateHeader("Content-Type", "application/json");
-    HttpResponse resp; 
-    HttpResponse respost;
-    // resp = custonHttp->get("");
-    respost = postHttp->post("/guest", "", "", "{\"api_key\":\"tPmAT5Ab3j7F9\"");
-    deserializeJson(doc, respost.response);
     // Serial.println(resp.response); 
     // Serial.println(resp.responseCode); 
     // Serial.println(resp.responseError); 
     
-    Serial.println(respost.response);
-    Serial.println(respost.responseCode); 
-    Serial.println(respost.responseError); 
-    const String data_token = doc["data"]["token"]; // "ok"
-    Serial.println(data_token);
-
-    // webSocket.loop();
-    // if (connect) 
-    // {
-    //     Serial.println("Conectado");
-    // }
+    
+    if (connect) 
+    {
+        webSocket.loop();
+        Serial.println("Conectado");
+    }
 }
