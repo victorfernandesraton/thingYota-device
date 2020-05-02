@@ -62,8 +62,9 @@ void setup()
 
     webSocket.on("event", event);
     webSocket.on("teste", teste);
+    webSocket.on("connect", teste);
     // webSocket.on("connect", connectHandler);
-    webSocket.begin("123.23.23.20/arduino", 8000);
+    webSocket.begin("http://123.23.23.20:8000/arduino");
     // use HTTP Basic Authorization this is optional remove if not needed
     // webSocket.setAuthorization("username", "password");
 }
@@ -89,12 +90,11 @@ void loop()
        if(token) {
            connect = true;
        }
-       
+
        while(connect) {
             Serial.println("Conectado");
             webSocket.loop();
             delay(200);
         }
     }
-
 }
