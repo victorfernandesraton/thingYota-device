@@ -16,6 +16,7 @@ DynamicJsonDocument loginResponseSerialize(String jsonfly)
     // Tratamento de json
     deserializeJson(doc, jsonfly);
     doc["res"] = true;
+    doc["response"] = true;
     return doc;
 }
 DynamicJsonDocument registerResponseSerialize(String jsonfly)
@@ -57,7 +58,7 @@ DynamicJsonDocument login(String mac_addres)
         return doc;
     }
 }
-DynamicJsonDocument registaer(String mac_address, String token, std::map<String, Port> port)
+DynamicJsonDocument registaer(String mac_address, String token)
 {
 
     const size_t capacity = JSON_OBJECT_SIZE(1);
@@ -90,6 +91,18 @@ DynamicJsonDocument guestToken() {
         return guestResponseSerialize(response.response);
     } else {
         return doc;
+    }    
+}
+
+String main(String mac_address, String guestToken) {
+    DynamicJsonDocument resAuth =auth::login(mac_address);
+    String tokenAuth = resAuth["data"]["token"];
+
+    if (!tokenAuth || tokenAuth == "") {
+        DynamicJsonDocument registerResponse = auth::registaer(mac_address, guestToken);
+        return resAuth["data"]["token"];        
+    } else {
+        return tokenAuth;
     }    
 }
 } // namespace auth

@@ -72,7 +72,6 @@ void loop()
 {    
     bool connect = false;
     bool socketConnect = false;
-    // String token;
     Port p1;
     p1.PID = 12;
     p1.type = "Teste";
@@ -84,28 +83,18 @@ void loop()
     DynamicJsonDocument guestAuthResponse = auth::guestToken();
     
     String guestToken = guestAuthResponse["data"]["token"];
-    Serial.println("Token");
-    Serial.println(guestToken);
-    // if(guestAuthResponse["res"]) {
-    // }
-    DynamicJsonDocument resAuth =auth::login(WiFi.macAddress());
     
-    bool isAuth = resAuth["res"];
-    Serial.println(isAuth);
-    if (!resAuth["res"]) {
-        DynamicJsonDocument registerResponse = auth::registaer(WiFi.macAddress(), guestToken, ports);
-    } else if (resAuth["res"]) {
-        String res = resAuth["data"]["token"];
-        Serial.println(res);
+    if (guestToken) {
+       String token = auth::main(WiFi.macAddress(), guestToken);
+       if(token) {
+           connect = true;
+       }
+       
+       while(connect) {
+            Serial.println("Conectado");
+            webSocket.loop();
+            delay(200);
+        }
     }
-    // Serial.println(resp.response); 
-    // Serial.println(resp.responseCode); 
-    // Serial.println(resp.responseError); 
-    
-    
-    if (connect) 
-    {
-        webSocket.loop();
-        Serial.println("Conectado");
-    }
+
 }
