@@ -10,7 +10,7 @@
 
 // const String apiDomain = "http://123.23.23.20:8000";
 const String apiDomain = "http://ic-iot-unifacs-api-2.herokuapp.com";
-const size_t capacity = 25000000;
+const size_t capacity = 10*JSON_ARRAY_SIZE(10) + 10*JSON_OBJECT_SIZE(10) + JSON_OBJECT_SIZE(10) + 1000;
 DynamicJsonDocument loginResponseSerialize(String jsonfly)
 {
     DynamicJsonDocument doc(capacity);
@@ -98,7 +98,7 @@ String main(String mac_address, String guestToken, int Port) {
     String tokenAuth = resAuth["data"]["token"];
     bool isLogged = resAuth["res"];
     Serial.println(tokenAuth+ isLogged);
-    if (tokenAuth == "error") {
+    if (!isLogged) {
         DynamicJsonDocument registerResponse = auth::registaer(mac_address, guestToken, Port);
         return resAuth["data"]["token"];        
     } else {
