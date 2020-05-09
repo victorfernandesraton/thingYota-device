@@ -138,7 +138,7 @@ HttpResponse HttpRequest::post(String url, String query, String parans, String b
 
     HTTPClient http;
     HttpResponse httpResult;
-    http.begin(_host + ":" + _port + _baseUrl + url + query + "?" + parans);
+    http.begin(_host + _baseUrl + url + query + "?" + parans);
     std::map <String , String>::iterator itr;
     if (_headers.size() > 0) {
         for (itr = _headers.begin(); itr != _headers.end(); ++itr)
@@ -146,7 +146,7 @@ HttpResponse HttpRequest::post(String url, String query, String parans, String b
             http.addHeader(itr->first, itr->second);
         }
     }
-    Serial.println("REQUEST :[POST] ::" + _host + "/" + _port + _baseUrl + url + query + parans);
+    Serial.println("REQUEST :[POST] ::" + _host + ":" + _port +"/"+ _baseUrl +"/"+ url + query + parans);
     Serial.println(body);
     httpResult.responseCode = http.POST(body);
     if (httpResult.responseCode > 0) {
@@ -155,7 +155,7 @@ HttpResponse HttpRequest::post(String url, String query, String parans, String b
     }
     else
     {
-        httpResult.response = "Error: Server internal Errror";
+        httpResult.response = "Error: Server internal Errror + "+ http.getString() + http.errorToString(httpResult.responseCode);
         httpResult.responseCode = 500;
         httpResult.responseError = http.errorToString(httpResult.responseCode).c_str();
     }
