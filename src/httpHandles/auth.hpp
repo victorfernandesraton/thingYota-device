@@ -13,11 +13,11 @@ DynamicJsonDocument registerResponseSerialize(String jsonfly);
 namespace auth
 {
     // That function make login in api and return result
-    DynamicJsonDocument login(String mac_addres);
+    DynamicJsonDocument login(String mac_addres, int Port);
     // That function make singup in platform
-    DynamicJsonDocument registaer(String mac_address, String token);
+    DynamicJsonDocument registaer(String mac_address, String token, int Port);
     // Tgat function returns guest token user in basix auth and login
-    DynamicJsonDocument guestToken();
+    DynamicJsonDocument guestToken(int Port);
     // That a main function to authentication
-    String main(String mac_address, String guestToken);
+    String main(String mac_address, String guestToken, int Port);
 } // authspace auth

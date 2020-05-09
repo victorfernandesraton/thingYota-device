@@ -1,41 +1,27 @@
 
+#include <vector>
+
+#include "HttpRequest.hpp"
+
+#include "httpHandles/auth.hpp"
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
-#include <SocketIoClient.h>
-#include "HttpRequest.hpp"
-#include <vector>
+
 #include <ArduinoJson.h>
-#include "httpHandles/auth.hpp"
 
 
 ESP8266WiFiMulti WiFiMulti;
-SocketIoClient webSocket;
 StaticJsonDocument<200> doc;
 
-const String apiDomain = "http://123.23.23.20";
+const String host = "https://ic-iot-unifacs-api-2.herokuapp.com/";
+const char host_socket[] = "123.23.23.20";
+const int port =  80;
+const char path_socket[] = "/arduino?transport=websocket";
 // const String macAddres = WiFi.macAddress;
 // bool connect = false;
 
-// eventos
-void event(const char *payload, size_t length)
-{
-    Serial.printf("got message: %s\n", payload);
-}
-
-void teste(const char *payload, size_t length)
-{
-    Serial.println("Teste %s");
-    Serial.printf("%s\n", payload);
-    // emiter
-    webSocket.emit("ok", "ok");
-}
-
-
-// void connectHandler(const char *payload, size_t length)
-// {
-//     connect = true;
-// }
 void setup()
 {
     Serial.begin(9600);
@@ -59,18 +45,10 @@ void setup()
     {
         delay(100);
     }
-
-    webSocket.on("event", event);
-    webSocket.on("teste", teste);
-    webSocket.on("connect", teste);
-    // webSocket.on("connect", connectHandler);
-    webSocket.begin("http://123.23.23.20:8000/arduino");
-    // use HTTP Basic Authorization this is optional remove if not needed
-    // webSocket.setAuthorization("username", "password");
 }
 
-void loop()
-{    
+void loop() 
+{
     bool connect = false;
     bool socketConnect = false;
     Port p1;
@@ -81,20 +59,19 @@ void loop()
     std::map<String, Port> ports;
     ports.insert(std::make_pair("12", p1));
     
-    DynamicJsonDocument guestAuthResponse = auth::guestToken();
+    DynamicJsonDocument guestAuthResponse = auth::guestToken(port);
     
     String guestToken = guestAuthResponse["data"]["token"];
     
     if (guestToken) {
-       String token = auth::main(WiFi.macAddress(), guestToken);
-       if(token) {
+       String token = auth::main(WiFi.macAddress(), guestToken,port);
+       if(token != "") {
            connect = true;
        }
+        delay(200);
 
-       while(connect) {
-            Serial.println("Conectado");
-            webSocket.loop();
-            delay(200);
-        }
+    //    while(connect) {
+    //         Serial.println("Conectado");
+    //     }
     }
 }
